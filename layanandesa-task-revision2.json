@@ -63,6 +63,7 @@
     ],
     "family": "layanandesa-task",
     "executionRoleArn": "arn:aws:iam::726412861887:role/ecsTaskExecutionRole",
+    "taskRoleArn": "arn:aws:iam::726412861887:role/ecsTaskExecutionRole",
     "networkMode": "awsvpc",
     "volumes": [],
     "placementConstraints": [],
