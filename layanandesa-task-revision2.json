@@ -16,7 +16,7 @@
             "essential": true,
             "environment": [
                 {
-                    "name": "CLOUNDFRONT_DOMAIN",
+                    "name": "CLOUDFRONT_DOMAIN",
                     "value": "dnrlmcry74s9a.cloudfront.net"
                 },
                 {
