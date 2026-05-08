@@ -8,7 +8,7 @@ on:
 env:
   AWS_REGION: us-east-1
   ECR_REPOSITORY: layanandesa-app-152023003           
-  ECS_SERVICE: layanandesa-task-service-dmrjd1ip           
+  ECS_SERVICE: layanandesa-task-service-eefk6xh4         
   ECS_CLUSTER: LayananDesa-Cluster           
   ECS_TASK_DEFINITION: layanandesa-task-revision2.json      
 
