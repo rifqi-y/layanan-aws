@@ -32,6 +32,19 @@ def get_db_connection():
 # Inisialisasi Tabel di MySQL
 def init_mysql_db():
     try:
+        # 1. Masuk ke RDS TANPA nama database untuk membuat databasenya dulu
+        koneksi_awal = pymysql.connect(
+            host=DB_HOST,
+            user=DB_USER,
+            password=DB_PASS
+        )
+        with koneksi_awal.cursor() as c:
+            # Buat database jika belum ada
+            c.execute(f"CREATE DATABASE IF NOT EXISTS {DB_NAME}")
+        koneksi_awal.commit()
+        koneksi_awal.close()
+
+        # 2. Setelah database ada, masuk secara normal untuk membuat tabel
         conn = get_db_connection()
         with conn.cursor() as c:
             c.execute('''CREATE TABLE IF NOT EXISTS pengajuan (
@@ -51,6 +64,7 @@ def init_mysql_db():
                          )''')
         conn.commit()
         conn.close()
+        print("Database dan tabel berhasil diinisialisasi!")
     except Exception as e:
         print(f"Gagal inisialisasi database: {e}")
 
