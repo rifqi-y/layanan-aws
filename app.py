@@ -88,7 +88,12 @@ def pengajuan():
             s3_filename = f"pengajuan/{uuid.uuid4().hex[:8]}_{filename}"
             
             # Upload ke Amazon S3
-            s3.upload_fileobj(file, S3_BUCKET, s3_filename)
+            s3.upload_fileobj(
+                file, 
+                S3_BUCKET, 
+                s3_filename,
+                ExtraArgs={'ContentType': file.content_type}
+            )
             
             id_tracking = str(uuid.uuid4())[:8].upper()
             status = "Menunggu Verifikasi"
@@ -121,7 +126,12 @@ def pengaduan():
             s3_filename = f"pengaduan/{uuid.uuid4().hex[:8]}_{filename}"
             
             # Upload ke Amazon S3
-            s3.upload_fileobj(file, S3_BUCKET, s3_filename)
+            s3.upload_fileobj(
+                file, 
+                S3_BUCKET, 
+                s3_filename,
+                ExtraArgs={'ContentType': file.content_type}
+            )
             
         id_laporan = "LAP-" + str(uuid.uuid4())[:6].upper()
         
