@@ -1,0 +1,116 @@
+{
+    "taskDefinitionArn": "arn:aws:ecs:us-east-1:726412861887:task-definition/layanandesa-task:2",
+    "containerDefinitions": [
+        {
+            "name": "layanandesa-container",
+            "image": "726412861887.dkr.ecr.us-east-1.amazonaws.com/layanandesa-app-152023003:latest",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "containerPort": 5000,
+                    "hostPort": 5000,
+                    "protocol": "tcp",
+                    "name": "layanandesa-container-5000-tcp",
+                    "appProtocol": "http"
+                }
+            ],
+            "essential": true,
+            "environment": [
+                {
+                    "name": "CLOUNDFRONT_DOMAIN",
+                    "value": "dnrlmcry74s9a.cloudfront.net"
+                },
+                {
+                    "name": "DB_PASS",
+                    "value": "m.rifqi123"
+                },
+                {
+                    "name": "DB_USER",
+                    "value": "admin"
+                },
+                {
+                    "name": "SECRET_KEY",
+                    "value": "feiaufivbaiebriejwafhfoaduhf"
+                },
+                {
+                    "name": "DB_NAME",
+                    "value": "layanandesa-db"
+                },
+                {
+                    "name": "S3_BUCKET_NAME",
+                    "value": "bucket-layanandesa-152023003"
+                },
+                {
+                    "name": "DB_HOST",
+                    "value": "layanandesa-db.cwbio0s8y47m.us-east-1.rds.amazonaws.com"
+                }
+            ],
+            "environmentFiles": [],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "ulimits": [],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/layanandesa-task",
+                    "awslogs-create-group": "true",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                },
+                "secretOptions": []
+            },
+            "systemControls": []
+        }
+    ],
+    "family": "layanandesa-task",
+    "executionRoleArn": "arn:aws:iam::726412861887:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "revision": 2,
+    "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.ecr-auth"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "ecs.capability.execution-role-ecr-pull"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.29"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2",
+        "MANAGED_INSTANCES",
+        "FARGATE"
+    ],
+    "runtimePlatform": {
+        "cpuArchitecture": "X86_64",
+        "operatingSystemFamily": "LINUX"
+    },
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "512",
+    "memory": "1024",
+    "registeredAt": "2026-05-08T06:13:18.829Z",
+    "registeredBy": "arn:aws:iam::726412861887:root",
+    "enableFaultInjection": false,
+    "tags": []
+}

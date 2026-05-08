@@ -16,12 +16,15 @@
   {% if data %}
   <div class="result-card">
     <h3>Detail Pengajuan</h3>
-    <p><strong>ID:</strong> {{ data[0] }}</p>
-    <p><strong>Nama:</strong> {{ data[1] }}</p>
-    <p><strong>Layanan:</strong> {{ data[3] }}</p>
+    <p><strong>ID:</strong> {{ data.id_tracking }}</p>
+    <p><strong>Nama:</strong> {{ data.nama }}</p>
+    <p><strong>Layanan:</strong> {{ data.jenis }}</p>
     <p>
-      <strong>Status Saat Ini:</strong> <span class="badge">{{ data[5] }}</span>
+      <strong>Status Saat Ini:</strong> <span class="badge">{{ data.status }}</span>
     </p>
+    {% if data.file_ktp %}
+    <p><strong>Dokumen:</strong> <a href="https://{{ cf_domain }}/{{ data.file_ktp }}" target="_blank">Lihat KTP</a></p>
+    {% endif %}
   </div>
   {% endif %}
 </div>

@@ -1,30 +1,60 @@
 import os
-import sqlite3
 import uuid
+import boto3
+import pymysql
 from werkzeug.utils import secure_filename
 from flask import Flask, render_template, request, redirect, url_for, flash
 
 app = Flask(__name__)
-app.secret_key = 'kunci_rahasia_lokal'
+app.secret_key = os.getenv('SECRET_KEY', 'kunci_rahasia_lokal')
 
-UPLOAD_FOLDER = 'uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# --- Konfigurasi AWS & Database dari Environment Variables ---
+S3_BUCKET = os.getenv('S3_BUCKET_NAME', 'nama-bucket-s3-anda')
+DB_HOST = os.getenv('DB_HOST', 'localhost')
+DB_USER = os.getenv('DB_USER', 'root')
+DB_PASS = os.getenv('DB_PASS', '')
+DB_NAME = os.getenv('DB_NAME', 'layanandesa')
+CF_DOMAIN = os.getenv('CLOUDFRONT_DOMAIN', '')
 
-# Update Database untuk menambahkan tabel pengaduan
-def init_db():
-    conn = sqlite3.connect('database.db')
-    c = conn.cursor()
-    # Tabel Pengajuan (Sudah ada sebelumnya)
-    c.execute('''CREATE TABLE IF NOT EXISTS pengajuan
-                 (id_tracking TEXT PRIMARY KEY, nama TEXT, nik TEXT, jenis TEXT, file_ktp TEXT, status TEXT)''')
-    # Tabel Pengaduan (Baru)
-    c.execute('''CREATE TABLE IF NOT EXISTS pengaduan
-                 (id_laporan TEXT PRIMARY KEY, nama TEXT, kategori TEXT, deskripsi TEXT, file_bukti TEXT)''')
-    conn.commit()
-    conn.close()
+# Inisialisasi S3 Client
+s3 = boto3.client('s3')
 
-init_db()
+# Fungsi Koneksi RDS (MySQL)
+def get_db_connection():
+    return pymysql.connect(
+        host=DB_HOST,
+        user=DB_USER,
+        password=DB_PASS,
+        database=DB_NAME,
+        cursorclass=pymysql.cursors.DictCursor
+    )
+
+# Inisialisasi Tabel di MySQL
+def init_mysql_db():
+    try:
+        conn = get_db_connection()
+        with conn.cursor() as c:
+            c.execute('''CREATE TABLE IF NOT EXISTS pengajuan (
+                            id_tracking VARCHAR(50) PRIMARY KEY, 
+                            nama VARCHAR(150), 
+                            nik VARCHAR(50), 
+                            jenis VARCHAR(100), 
+                            file_ktp VARCHAR(255), 
+                            status VARCHAR(50)
+                         )''')
+            c.execute('''CREATE TABLE IF NOT EXISTS pengaduan (
+                            id_laporan VARCHAR(50) PRIMARY KEY, 
+                            nama VARCHAR(150), 
+                            kategori VARCHAR(100), 
+                            deskripsi TEXT, 
+                            file_bukti VARCHAR(255)
+                         )''')
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Gagal inisialisasi database: {e}")
+
+init_mysql_db()
 
 @app.route('/')
 def index():
@@ -39,18 +69,21 @@ def pengajuan():
         jenis = request.form['jenis']
         file = request.files['file_ktp']
         
-        if file:
+        if file and file.filename != '':
             filename = secure_filename(file.filename)
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(file_path) # TODO AWS: Ganti ke boto3 upload S3
+            s3_filename = f"pengajuan/{uuid.uuid4().hex[:8]}_{filename}"
+            
+            # Upload ke Amazon S3
+            s3.upload_fileobj(file, S3_BUCKET, s3_filename)
             
             id_tracking = str(uuid.uuid4())[:8].upper()
             status = "Menunggu Verifikasi"
             
-            conn = sqlite3.connect('database.db') # TODO AWS: Ganti ke RDS
-            c = conn.cursor()
-            c.execute("INSERT INTO pengajuan VALUES (?, ?, ?, ?, ?, ?)", 
-                      (id_tracking, nama, nik, jenis, filename, status))
+            # Simpan ke Amazon RDS
+            conn = get_db_connection()
+            with conn.cursor() as c:
+                c.execute("INSERT INTO pengajuan (id_tracking, nama, nik, jenis, file_ktp, status) VALUES (%s, %s, %s, %s, %s, %s)", 
+                          (id_tracking, nama, nik, jenis, s3_filename, status))
             conn.commit()
             conn.close()
             
@@ -59,7 +92,7 @@ def pengajuan():
             
     return render_template('pengajuan.html')
 
-# --- Route Pengaduan Masyarakat (Baru) ---
+# --- Route Pengaduan Masyarakat ---
 @app.route('/pengaduan', methods=['GET', 'POST'])
 def pengaduan():
     if request.method == 'POST':
@@ -68,18 +101,21 @@ def pengaduan():
         deskripsi = request.form['deskripsi']
         file = request.files['file_bukti']
         
-        filename = ""
+        s3_filename = ""
         if file and file.filename != '':
             filename = secure_filename(file.filename)
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(file_path) # TODO AWS: Ganti ke boto3 upload S3 [cite: 38]
+            s3_filename = f"pengaduan/{uuid.uuid4().hex[:8]}_{filename}"
+            
+            # Upload ke Amazon S3
+            s3.upload_fileobj(file, S3_BUCKET, s3_filename)
             
         id_laporan = "LAP-" + str(uuid.uuid4())[:6].upper()
         
-        conn = sqlite3.connect('database.db') # TODO AWS: Ganti ke koneksi RDS [cite: 37]
-        c = conn.cursor()
-        c.execute("INSERT INTO pengaduan VALUES (?, ?, ?, ?, ?)", 
-                  (id_laporan, nama, kategori, deskripsi, filename))
+        # Simpan ke Amazon RDS
+        conn = get_db_connection()
+        with conn.cursor() as c:
+            c.execute("INSERT INTO pengaduan (id_laporan, nama, kategori, deskripsi, file_bukti) VALUES (%s, %s, %s, %s, %s)", 
+                      (id_laporan, nama, kategori, deskripsi, s3_filename))
         conn.commit()
         conn.close()
         
@@ -94,16 +130,18 @@ def status_layanan():
     data = None
     if request.method == 'POST':
         id_tracking = request.form['id_tracking']
-        conn = sqlite3.connect('database.db')
-        c = conn.cursor()
-        c.execute("SELECT * FROM pengajuan WHERE id_tracking=?", (id_tracking,))
-        data = c.fetchone()
+        
+        # Ambil data dari Amazon RDS
+        conn = get_db_connection()
+        with conn.cursor() as c:
+            c.execute("SELECT * FROM pengajuan WHERE id_tracking=%s", (id_tracking,))
+            data = c.fetchone()
         conn.close()
         
         if not data:
             flash('ID Tracking tidak ditemukan.')
             
-    return render_template('status.html', data=data)
+    return render_template('status.html', data=data, cf_domain=CF_DOMAIN)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
