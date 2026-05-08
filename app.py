@@ -167,5 +167,30 @@ def status_layanan():
             
     return render_template('status.html', data=data, cf_domain=CF_DOMAIN)
 
+@app.route('/admin/lihat-data')
+def lihat_data():
+    try:
+        conn = get_db_connection()
+        with conn.cursor() as c:
+            # Ambil semua data dari tabel pengajuan
+            c.execute("SELECT * FROM pengajuan")
+            data_pengajuan = c.fetchall()
+
+            # Ambil semua data dari tabel pengaduan
+            c.execute("SELECT * FROM pengaduan")
+            data_pengaduan = c.fetchall()
+        conn.close()
+
+        # Tampilkan sebagai JSON di browser
+        return {
+            "status": "sukses",
+            "total_pengajuan": len(data_pengajuan),
+            "data_pengajuan": data_pengajuan,
+            "total_pengaduan": len(data_pengaduan),
+            "data_pengaduan": data_pengaduan
+        }
+    except Exception as e:
+        return {"error": str(e)}
+
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
