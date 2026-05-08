@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Pelayanan Publik Desa</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400;1,9..144,500&family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav>
+        <h2>LayananDesa</h2>
+        <ul>
+            <li><a href="{{ url_for('index') }}">Beranda</a></li>
+            <li><a href="{{ url_for('pengajuan') }}">Pengajuan Surat</a></li>
+            <li><a href="{{ url_for('pengaduan') }}">Pengaduan Warga</a></li>
+            <li><a href="{{ url_for('status_layanan') }}">Cek Status</a></li>
+        </ul>
+    </nav>
+    <main>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="alert">
+              {% for message in messages %}
+                <p>{{ message }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

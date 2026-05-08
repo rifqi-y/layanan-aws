@@ -1,0 +1,28 @@
+{% extends "base.html" %} {% block content %}
+<div class="form-container">
+  <h2>Lacak Status Dokumen</h2>
+  <form action="{{ url_for('status_layanan') }}" method="POST">
+    <label for="id_tracking">Masukkan ID Tracking:</label>
+    <input
+      type="text"
+      id="id_tracking"
+      name="id_tracking"
+      placeholder="Contoh: A1B2C3D4"
+      required
+    />
+    <button type="submit" class="btn">Cari</button>
+  </form>
+
+  {% if data %}
+  <div class="result-card">
+    <h3>Detail Pengajuan</h3>
+    <p><strong>ID:</strong> {{ data[0] }}</p>
+    <p><strong>Nama:</strong> {{ data[1] }}</p>
+    <p><strong>Layanan:</strong> {{ data[3] }}</p>
+    <p>
+      <strong>Status Saat Ini:</strong> <span class="badge">{{ data[5] }}</span>
+    </p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

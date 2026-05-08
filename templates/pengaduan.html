@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="form-container">
+    <h2>Formulir Pengaduan Masyarakat</h2>
+    <p>Sampaikan laporan terkait infrastruktur, pelayanan, atau masalah keamanan di lingkungan Anda.</p>
+    
+    <form action="{{ url_for('pengaduan') }}" method="POST" enctype="multipart/form-data">
+        <label for="nama">Nama Pelapor (Boleh Anonim):</label>
+        <input type="text" id="nama" name="nama" placeholder="Contoh: Warga RT 01" required>
+
+        <label for="kategori">Kategori Pengaduan:</label>
+        <select id="kategori" name="kategori" required>
+            <option value="Infrastruktur & Fasilitas Umum">Infrastruktur & Fasilitas Umum (Jalan Rusak, Lampu Mati)</option>
+            <option value="Ketertiban & Keamanan">Ketertiban & Keamanan</option>
+            <option value="Kebersihan & Lingkungan">Kebersihan & Lingkungan (Tumpukan Sampah)</option>
+            <option value="Pelayanan Aparatur">Pelayanan Aparatur Desa</option>
+        </select>
+
+        <label for="deskripsi">Deskripsi Laporan:</label>
+        <textarea id="deskripsi" name="deskripsi" rows="5" required></textarea>
+
+        <label for="file_bukti">Upload Foto Bukti (Opsional):</label>
+        <input type="file" id="file_bukti" name="file_bukti" accept=".jpg,.jpeg,.png">
+        <small>*Fitur ini adalah simulasi yang nantinya akan mengunggah file ke Amazon S3</small>
+
+        <button type="submit" class="btn">Kirim Pengaduan</button>
+    </form>
+</div>
+{% endblock %}

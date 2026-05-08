@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="form-container">
+    <h2>Formulir Pengajuan Layanan Administrasi</h2>
+    <form action="{{ url_for('pengajuan') }}" method="POST" enctype="multipart/form-data">
+        <label for="nama">Nama Lengkap:</label>
+        <input type="text" id="nama" name="nama" required>
+
+        <label for="nik">NIK:</label>
+        <input type="text" id="nik" name="nik" required>
+
+        <label for="jenis">Jenis Layanan:</label>
+        <select id="jenis" name="jenis" required>
+            <option value="Surat Keterangan Domisili">Surat Keterangan Domisili</option>
+            <option value="Surat Keterangan Usaha">Surat Keterangan Usaha</option>
+            <option value="Surat Pengantar RT/RW">Surat Pengantar RT/RW</option>
+        </select>
+
+        <label for="file_ktp">Upload Scan/Foto KTP (File):</label>
+        <input type="file" id="file_ktp" name="file_ktp" accept=".jpg,.jpeg,.png,.pdf" required>
+        <small>*Fitur ini adalah simulasi yang nantinya akan mengunggah file ke Amazon S3</small>
+
+        <button type="submit" class="btn">Kirim Pengajuan</button>
+    </form>
+</div>
+{% endblock %}

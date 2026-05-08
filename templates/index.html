@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="hero">
+    <h1>Selamat Datang di Portal Layanan Desa</h1>
+    <p>Sistem pengajuan administrasi dan pelaporan mandiri.</p>
+</div>
+<div class="grid">
+    <div class="card">
+        <h3>Pengajuan Surat Administrasi</h3>
+        <p>Ajukan surat domisili, keterangan usaha, dll dari rumah.</p>
+        <a href="{{ url_for('pengajuan') }}" class="btn">Mulai Pengajuan</a>
+    </div>
+    <div class="card">
+        <h3>Lacak Status Dokumen</h3>
+        <p>Gunakan ID Tracking Anda untuk memantau status dokumen.</p>
+        <a href="{{ url_for('status_layanan') }}" class="btn">Cek Sekarang</a>
+    </div>
+    <div class="card">
+        <h3>Pengaduan Masyarakat</h3>
+        <p>Laporkan masalah infrastruktur atau keamanan di lingkungan desa.</p>
+        <a href="{{ url_for('pengaduan') }}" class="btn btn-alert">Lapor Sekarang</a>
+    </div>
+</div>
+{% endblock %}
