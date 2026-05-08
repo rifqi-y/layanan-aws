@@ -33,7 +33,7 @@
                 },
                 {
                     "name": "DB_NAME",
-                    "value": "layanandesa-db"
+                    "value": "layanandesa"
                 },
                 {
                     "name": "S3_BUCKET_NAME",
